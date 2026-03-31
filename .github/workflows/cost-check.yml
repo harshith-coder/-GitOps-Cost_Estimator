@@ -65,6 +65,8 @@ jobs:
       - name: 💰 Run Cost Estimation (All Providers)
         run: npm run estimate
         continue-on-error: true
+        env:
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
 
       - name: 💬 Post PR Comment with Cost Report
         if: github.event_name == 'pull_request'
