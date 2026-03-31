@@ -27,7 +27,12 @@ resource "aws_instance" "webserver" {
   associate_public_ip_address = false
   
   tags = {
-    Name = "demo-webserver"
+    Name        = "demo-webserver"
+    Environment = "Prod"
+    Service     = "web-application"
+    Project     = "gitops-cost-estimator"
+    ManagedBy   = "Terraform"
+    CostCenter  = "engineering"
   }
 }
 
@@ -58,7 +63,11 @@ resource "aws_security_group" "allow_web" {
   }
 
   tags = {
-    Name = "allow-web"
+    Name        = "allow-web"
+    Environment = "Prod"
+    Service     = "security"
+    Project     = "gitops-cost-estimator"
+    ManagedBy   = "Terraform"
   }
 }
 
@@ -70,7 +79,12 @@ resource "aws_ebs_volume" "data_storage" {
   encrypted         = true
 
   tags = {
-    Name = "data-storage"
+    Name        = "data-storage"
+    Environment = "Prod"
+    Service     = "storage"
+    Project     = "gitops-cost-estimator"
+    ManagedBy   = "Terraform"
+    CostCenter  = "engineering"
   }
 }
 
