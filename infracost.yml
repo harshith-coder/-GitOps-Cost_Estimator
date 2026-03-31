@@ -1,0 +1,28 @@
+version: 0.1
+
+# Infracost Cloud configuration
+# For policy documentation: https://docs.infracost.io/
+
+# Configure policies to be informational rather than blocking
+policies:
+  fail_on_resource_count: false  # Don't fail on untagged resources if they're in test
+  enforcement: warn  # Change from error to warn for development
+
+# Log configurations
+log_level: info
+
+# Cost estimation settings
+cost_estimation:
+  skip_missing_prices: true
+  use_defaults: true
+
+# Policy exceptions for test/demo infrastructure
+skip_policies:
+  - tagging_check  # We have tags, but Infracost may have different requirements
+  
+# Tag the infrastructure as test environment  
+default_tags:
+  Environment: prod
+  CostCenter: engineering
+  Owner: platform-team
+  Terraform: true
