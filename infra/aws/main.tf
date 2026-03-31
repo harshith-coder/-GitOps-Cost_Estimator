@@ -9,6 +9,15 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+
+  default_tags {
+    tags = {
+      Project     = "gitops-cost-estimator"
+      Environment = var.environment
+      ManagedBy   = "Terraform"
+      Service     = "demo"
+    }
+  }
 }
 
 # Web Server EC2 Instance
@@ -17,9 +26,7 @@ resource "aws_instance" "webserver" {
   instance_type = var.instance_type
   
   tags = {
-    Name        = "demo-webserver"
-    Environment = "demo"
-    Project     = "gitops-cost-estimator"
+    Name = "demo-webserver"
   }
 }
 
@@ -71,17 +78,23 @@ resource "aws_db_instance" "main" {
   count              = var.create_database ? 1 : 0
   identifier         = "demo-db"
   engine             = "mysql"
-  engine_version     = "8.0"
-  instance_class     = "db.t3.micro"
+  engine_version     = "8.0.35"
+  instance_class     = "db.t4g.micro"
   allocated_storage  = 20
-  storage_type       = "gp2"
+  storage_type       = "gp3"
   storage_encrypted  = true
   username           = "admin"
   password           = "DemoPass123!"
   skip_final_snapshot = true
+  copy_tags_to_snapshot = true
+
+  enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
 
   tags = {
-    Name = "demo-database"
+    Name        = "demo-database"
+    Environment = "demo"
+    Service     = "gitops-demo"
+    Project     = "cost-estimator"
   }
 }
 
