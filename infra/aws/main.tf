@@ -77,11 +77,11 @@ resource "aws_ebs_volume" "data_storage" {
 # RDS Database (optional add-on)
 resource "aws_db_instance" "main" {
   count              = var.create_database ? 1 : 0
-  identifier         = "demo-db"
+  identifier         = "prod-db"
   engine             = "mysql"
   engine_version     = "8.0.39"
-  instance_class     = "db.t4g.micro"
-  allocated_storage  = 20
+  instance_class     = "db.t4g.small"  # TEST: Larger DB instance
+  allocated_storage  = 100             # TEST: More storage
   storage_type       = "gp3"
   storage_encrypted  = true
   username           = "admin"
