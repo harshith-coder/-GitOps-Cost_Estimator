@@ -27,7 +27,13 @@ resource "aws_instance" "webserver" {
   associate_public_ip_address = false
   
   tags = {
-    Name = "demo-webserver"
+    Name        = "demo-webserver"
+    Environment = "Prod"
+    Service     = "web-application"
+    Project     = "gitops-cost-estimator"
+    ManagedBy   = "Terraform"
+    CostCenter  = "engineering"
+    Owner       = "platform-team"
   }
 }
 
@@ -58,7 +64,12 @@ resource "aws_security_group" "allow_web" {
   }
 
   tags = {
-    Name = "allow-web"
+    Name        = "allow-web"
+    Environment = "Prod"
+    Service     = "security"
+    Project     = "gitops-cost-estimator"
+    ManagedBy   = "Terraform"
+    Owner       = "platform-team"
   }
 }
 
@@ -70,18 +81,24 @@ resource "aws_ebs_volume" "data_storage" {
   encrypted         = true
 
   tags = {
-    Name = "data-storage"
+    Name        = "data-storage"
+    Environment = "Prod"
+    Service     = "storage"
+    Project     = "gitops-cost-estimator"
+    ManagedBy   = "Terraform"
+    CostCenter  = "engineering"
+    Owner       = "platform-team"
   }
 }
 
 # RDS Database (optional add-on)
 resource "aws_db_instance" "main" {
   count              = var.create_database ? 1 : 0
-  identifier         = "demo-db"
+  identifier         = "prod-db"
   engine             = "mysql"
   engine_version     = "8.0.39"
-  instance_class     = "db.t4g.micro"
-  allocated_storage  = 20
+  instance_class     = "db.t4g.small"  # TEST: Larger DB instance
+  allocated_storage  = 100             # TEST: More storage
   storage_type       = "gp3"
   storage_encrypted  = true
   username           = "admin"
@@ -94,8 +111,11 @@ resource "aws_db_instance" "main" {
   tags = {
     Name        = "demo-database"
     Environment = "Prod"
-    Service     = "gitops-demo"
-    Project     = "cost-estimator"
+    Service     = "database"
+    Project     = "gitops-cost-estimator"
+    ManagedBy   = "Terraform"
+    CostCenter  = "engineering"
+    Owner       = "platform-team"
   }
 }
 

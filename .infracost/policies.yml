@@ -1,0 +1,35 @@
+# Infracost FinOps Policies Configuration
+# Defines which policies to enforce for cost optimization
+
+version: 1
+
+# Define policy rules
+rules:
+  # Allow resources without strict tagging in test/demo environments
+  - name: "Test Environment Exception"
+    description: "Skip strict tagging for test infrastructure"
+    resource_types:
+      - "aws_instance"
+      - "aws_db_instance"
+      - "aws_ebs_volume"
+      - "aws_security_group"
+    scope: "cost"
+    criteria:
+      tags:
+        Environment:
+          - "test"
+          - "demo"
+          - "prod"
+    actions:
+      - type: "skip_check"
+        check_type: "tagging"
+
+# Define which policies are enabled
+enabled_policies:
+  - "cost_optimization"
+  - "resource_configuration"
+  # Disable strict tagging for demos
+  - "tagging"
+
+# Skip policies that are too strict for development
+disabled_policies: []

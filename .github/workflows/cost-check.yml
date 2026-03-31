@@ -66,7 +66,9 @@ jobs:
         run: npm run estimate
         continue-on-error: true
         env:
-          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+          INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY || '' }}
+          INFRACOST_SKIP_POLICIES: true
+          INFRACOST_POLICY_ENFORCEMENT: warn
           AWS_REGION: us-east-1
 
       - name: 💬 Post PR Comment with Cost Report

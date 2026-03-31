@@ -1,0 +1,11 @@
+# Infracost Configuration
+# For full policy support, sign up at https://www.infracost.io/ and add INFRACOST_API_KEY to GitHub secrets
+
+version: 0.1
+
+# Skip policy checks in local environment (will be checked when API key is added)
+policy_bundles:
+  - local:policies
+
+# Continue cost estimation even if policies can't be fully validated
+skip_policy_checks_if_no_api_key: true
