@@ -67,26 +67,31 @@ jobs:
         continue-on-error: true
         env:
           INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+          AWS_REGION: us-east-1
 
       - name: 💬 Post PR Comment with Cost Report
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
+            let comment = "";
+            
             if (fs.existsSync('pr-comment.md')) {
-              const comment = fs.readFileSync('pr-comment.md', 'utf8');
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: comment
-              });
-              console.log('✅ PR comment posted successfully');
+              comment = fs.readFileSync('pr-comment.md', 'utf8');
             } else {
-              console.log('⚠️ No PR comment file found');
+              comment = `## 💰 Cost Estimation Report\n\n**Status**: ⚠️ Pending credentials\n\nTo show real cost estimates:\n1. Configure AWS credentials in GitHub Secrets\n2. Set INFRACOST_API_KEY in GitHub Secrets\n3. Re-run workflow\n\n*Infrastructure Change Detected*`;
             }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+            console.log('✅ PR comment posted successfully');
+        
 
       - name: 📊 Upload Cost Report
         if: always()
@@ -109,12 +114,14 @@ jobs:
 
       - name: 🏗️ Setup Terraform
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
 
       - name: ✅ Validate AWS Configuration
         if: hashFiles('infra/aws/main.tf') != ''
         run: |
           cd infra/aws
-          terraform init
+          terraform init -backend=false
           terraform validate
           echo "✓ AWS configuration is valid"
         continue-on-error: true
@@ -123,7 +130,7 @@ jobs:
         if: hashFiles('infra/azure/main.tf') != ''
         run: |
           cd infra/azure
-          terraform init
+          terraform init -backend=false
           terraform validate
           echo "✓ Azure configuration is valid"
         continue-on-error: true
@@ -132,7 +139,7 @@ jobs:
         if: hashFiles('infra/gcp/main.tf') != ''
         run: |
           cd infra/gcp
-          terraform init
+          terraform init -backend=false
           terraform validate
           echo "✓ GCP configuration is valid"
         continue-on-error: true
