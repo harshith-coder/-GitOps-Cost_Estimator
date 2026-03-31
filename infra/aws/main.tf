@@ -33,6 +33,7 @@ resource "aws_instance" "webserver" {
     Project     = "gitops-cost-estimator"
     ManagedBy   = "Terraform"
     CostCenter  = "engineering"
+    Owner       = "platform-team"
   }
 }
 
@@ -68,6 +69,7 @@ resource "aws_security_group" "allow_web" {
     Service     = "security"
     Project     = "gitops-cost-estimator"
     ManagedBy   = "Terraform"
+    Owner       = "platform-team"
   }
 }
 
@@ -85,6 +87,7 @@ resource "aws_ebs_volume" "data_storage" {
     Project     = "gitops-cost-estimator"
     ManagedBy   = "Terraform"
     CostCenter  = "engineering"
+    Owner       = "platform-team"
   }
 }
 
@@ -108,8 +111,11 @@ resource "aws_db_instance" "main" {
   tags = {
     Name        = "demo-database"
     Environment = "Prod"
-    Service     = "gitops-demo"
-    Project     = "cost-estimator"
+    Service     = "database"
+    Project     = "gitops-cost-estimator"
+    ManagedBy   = "Terraform"
+    CostCenter  = "engineering"
+    Owner       = "platform-team"
   }
 }
 
