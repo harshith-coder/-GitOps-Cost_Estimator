@@ -1,0 +1,136 @@
+name: Cost Estimation
+
+on:
+  pull_request:
+    paths:
+      - 'infra/**'
+      - '.github/workflows/cost-check.yml'
+      - 'scripts/**'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'infra/**'
+
+env:
+  INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+
+jobs:
+  detect-and-estimate:
+    name: Detect Provider & Estimate Cost
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: 🏗️ Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.0
+
+      - name: 📦 Install Infracost
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/infracost/infracost/master/scripts/install.sh | bash
+          infracost --version
+
+      - name: 🔍 Detect Cloud Provider(s)
+        id: detect
+        run: |
+          PROVIDERS=""
+          if [ -f "infra/aws/main.tf" ]; then
+            PROVIDERS="$PROVIDERS aws"
+          fi
+          if [ -f "infra/azure/main.tf" ]; then
+            PROVIDERS="$PROVIDERS azure"
+          fi
+          if [ -f "infra/gcp/main.tf" ]; then
+            PROVIDERS="$PROVIDERS gcp"
+          fi
+          echo "providers=$PROVIDERS" >> $GITHUB_OUTPUT
+          echo "✓ Detected providers: $PROVIDERS"
+
+      - name: 💰 Run Cost Estimation (All Providers)
+        run: npm run estimate
+        continue-on-error: true
+
+      - name: 💬 Post PR Comment with Cost Report
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('pr-comment.md')) {
+              const comment = fs.readFileSync('pr-comment.md', 'utf8');
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+              console.log('✅ PR comment posted successfully');
+            } else {
+              console.log('⚠️ No PR comment file found');
+            }
+
+      - name: 📊 Upload Cost Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: cost-reports
+          path: |
+            pr-comment.md
+            cost-history.json
+          retention-days: 30
+
+  validate-terraform:
+    name: Validate Terraform Configuration
+    runs-on: ubuntu-latest
+    if: ${{ always() }}
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🏗️ Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: ✅ Validate AWS Configuration
+        if: hashFiles('infra/aws/main.tf') != ''
+        run: |
+          cd infra/aws
+          terraform init
+          terraform validate
+          echo "✓ AWS configuration is valid"
+        continue-on-error: true
+
+      - name: ✅ Validate Azure Configuration
+        if: hashFiles('infra/azure/main.tf') != ''
+        run: |
+          cd infra/azure
+          terraform init
+          terraform validate
+          echo "✓ Azure configuration is valid"
+        continue-on-error: true
+
+      - name: ✅ Validate GCP Configuration
+        if: hashFiles('infra/gcp/main.tf') != ''
+        run: |
+          cd infra/gcp
+          terraform init
+          terraform validate
+          echo "✓ GCP configuration is valid"
+        continue-on-error: true

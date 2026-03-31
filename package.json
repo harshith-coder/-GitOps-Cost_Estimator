@@ -1,0 +1,36 @@
+{
+  "name": "gitops-cost-estimator",
+  "version": "1.0.0",
+  "description": "Automated cloud cost visibility for infrastructure changes with multi-cloud support (AWS, Azure, GCP)",
+  "main": "scripts/estimate-cost.js",
+  "scripts": {
+    "estimate": "node scripts/estimate-cost.js",
+    "estimate:aws": "cd infra/aws && terraform init && terraform plan -out=tfplan && infracost breakdown --path tfplan --format json",
+    "estimate:azure": "cd infra/azure && terraform init && terraform plan -out=tfplan && infracost breakdown --path tfplan --format json",
+    "estimate:gcp": "cd infra/gcp && terraform init && terraform plan -out=tfplan && infracost breakdown --path tfplan --format json",
+    "plan": "cd infra && terraform plan",
+    "clean": "rimraf infra/*/.terraform infra/*/tfplan cost-history.json pr-comment.md",
+    "test": "echo 'Testing infrastructure configuration...'",
+    "docs": "echo 'GitOps Cost Estimator Documentation' && cat README.md"
+  },
+  "keywords": [
+    "gitops",
+    "cost",
+    "terraform",
+    "infracost",
+    "aws",
+    "azure",
+    "gcp",
+    "cloud",
+    "cost-optimization"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/gitops-cost-estimator"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

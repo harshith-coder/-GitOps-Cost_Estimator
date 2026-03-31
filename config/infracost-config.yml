@@ -1,0 +1,28 @@
+# Infracost Configuration
+
+version: 0.1
+
+projects:
+  - name: aws-infrastructure
+    path: infra/aws
+    terraform_plan_flags: "-out=tfplan"
+
+  - name: azure-infrastructure
+    path: infra/azure
+    terraform_plan_flags: "-out=tfplan"
+
+  - name: gcp-infrastructure
+    path: infra/gcp
+    terraform_plan_flags: "-out=tfplan"
+
+# Output format options
+output_format: json
+
+# Currency settings
+currency: USD
+
+# Exclude resources from cost estimation
+exclude_patterns:
+  - "aws_security_group"           # Usually free
+  - "azurerm_resource_group"       # Management only
+  - "google_compute_firewall"      # Usually free

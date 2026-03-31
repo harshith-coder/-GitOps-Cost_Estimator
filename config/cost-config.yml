@@ -1,0 +1,36 @@
+# Cost Thresholds Configuration
+# Adjust these values based on your organization's cost policies
+
+thresholds:
+  warning: 100      # Warning alert if monthly cost > $100
+  critical: 500     # Critical alert if monthly cost > $500
+
+# Enable/Disable providers
+providers:
+  aws:
+    enabled: true
+    region: us-east-1
+  azure:
+    enabled: false
+    region: East US
+  gcp:
+    enabled: false
+    region: us-central1
+
+# Cost reporting
+reporting:
+  include_resources: true      # Show individual resource costs
+  include_comparison: true     # Compare with previous costs
+  format: markdown             # PR comment format (markdown)
+  include_alerts: true         # Show cost alerts
+
+# Git integration
+git:
+  auto_commit: false           # Auto-commit cost reports
+  commit_message: "docs: update cost estimates"
+
+# Advanced options
+advanced:
+  cache_enabled: true          # Cache Infracost results
+  cache_ttl: 3600              # Cache TTL in seconds
+  parallel_providers: true     # Estimate all providers in parallel
