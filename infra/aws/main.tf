@@ -13,7 +13,7 @@ provider "aws" {
   default_tags {
     tags = {
       Project     = "gitops-cost-estimator"
-      Environment = var.environment
+      Environment = "Prod"
       ManagedBy   = "Terraform"
       Service     = "demo"
     }
@@ -22,8 +22,9 @@ provider "aws" {
 
 # Web Server EC2 Instance
 resource "aws_instance" "webserver" {
-  ami           = "ami-0c55b159cbfafe1f0"  # Ubuntu 20.04 LTS
-  instance_type = var.instance_type
+  ami                         = "ami-0c55b159cbfafe1f0"  # Ubuntu 20.04 LTS
+  instance_type               = var.instance_type
+  associate_public_ip_address = false
   
   tags = {
     Name = "demo-webserver"
@@ -78,7 +79,7 @@ resource "aws_db_instance" "main" {
   count              = var.create_database ? 1 : 0
   identifier         = "demo-db"
   engine             = "mysql"
-  engine_version     = "8.0.35"
+  engine_version     = "8.0.39"
   instance_class     = "db.t4g.micro"
   allocated_storage  = 20
   storage_type       = "gp3"
@@ -88,11 +89,11 @@ resource "aws_db_instance" "main" {
   skip_final_snapshot = true
   copy_tags_to_snapshot = true
 
-  enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
+  enabled_cloudwatch_logs_exports = ["audit", "error", "general", "slowquery"]
 
   tags = {
     Name        = "demo-database"
-    Environment = "demo"
+    Environment = "Prod"
     Service     = "gitops-demo"
     Project     = "cost-estimator"
   }
