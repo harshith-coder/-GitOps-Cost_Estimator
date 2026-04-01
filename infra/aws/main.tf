@@ -97,8 +97,8 @@ resource "aws_db_instance" "main" {
   identifier         = "prod-db"
   engine             = "mysql"
   engine_version     = "8.0.39"
-  instance_class     = "db.t4g.small"  # TEST: Larger DB instance
-  allocated_storage  = 100             # TEST: More storage
+  instance_class     = "db.t4g.medium" # PROD: Upgraded to medium for production load
+  allocated_storage  = 200             # PROD: Doubled storage for data growth
   storage_type       = "gp3"
   storage_encrypted  = true
   username           = "admin"
